@@ -1,6 +1,4 @@
 #pragma once
-#include <exception>
-#include <functional>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <initializer_list>
@@ -10,6 +8,7 @@
 #include <stdexcept>
 #include <type_traits>
 #include <fstream>
+#include "manager_base.hpp"
 
 namespace CGTask::render
 {
@@ -62,36 +61,18 @@ namespace CGTask::render
         return result;
     }
 
-    class shader_handler
+    auto shader_deleter = [](GLuint shader_id)
+    {
+        glDeleteShader(shader_id);
+    };
+    class shader_handler : public manager_base<GLuint>
     {
     public:
         explicit shader_handler(GLuint shader_id)
-            : shader_id(shader_id)
-        {
-            if (!glIsShader(shader_id))
-                throw invalid_shader("shader_handler::shader_handler: not a shader");
-        }
-        shader_handler(shader_handler const&) = delete;
-        shader_handler(shader_handler &&src) noexcept
-            : shader_id(std::exchange(src.shader_id, 0))
+            : manager_base(!glIsShader(shader_id) ? 
+                    throw invalid_shader("shader_handler::shader_handler: not a shader") :
+                    shader_id, shader_deleter)
         {}
-        shader_handler &operator=(shader_handler const&) = delete;
-        shader_handler &operator=(shader_handler &&rhs) noexcept
-        {
-            std::swap(shader_id, rhs.shader_id);
-            return *this;
-        }
-        ~shader_handler()
-        {
-            glDeleteShader(shader_id);
-        }
-
-        GLuint id() const
-        {
-            return shader_id;
-        }
-    private:
-        GLuint shader_id;
     };
     namespace detail
     {
@@ -120,35 +101,19 @@ namespace CGTask::render
     {
         return shader_handler(detail::compile_shader(shader_type, source));
     }
-    class shader_program_handler
+
+    inline auto shader_program_deleter = [](GLuint id)
+    {
+        glDeleteProgram(id);
+    };
+    class shader_program_handler: public manager_base<GLuint>
     {
     public:
         explicit shader_program_handler(GLuint program_id)
-            : program_id(program_id)
-        {
-            if (!glIsProgram(program_id))
-                throw invalid_program("shader_program_handler::shader_program_handler: not a program");
-        }
-        shader_program_handler(shader_program_handler const&) = delete;
-        shader_program_handler(shader_program_handler &&src) noexcept
-            :program_id(std::exchange(src.program_id, 0))
+            : manager_base(!glIsProgram(program_id) ?
+                    throw invalid_program("shader_program_handler::shader_program_handler: not a program") :
+                    program_id, shader_program_deleter)
         {}
-        shader_program_handler &operator=(shader_program_handler const&) = delete;
-        shader_program_handler &operator=(shader_program_handler &&rhs) noexcept
-        {
-            std::swap(program_id, rhs.program_id);
-            return *this;
-        }
-        ~shader_program_handler()
-        {
-            glDeleteProgram(program_id);
-        }
-        GLuint id() const
-        {
-            return program_id;
-        }
-    private:
-        GLuint program_id;
     };
     namespace detail
     {
@@ -182,9 +147,4 @@ namespace CGTask::render
         }
         return shader_program_handler(program_id);
     }
-
-    class shader_manager
-    {
-    public:
-    };
 }

@@ -6,6 +6,7 @@
 
 #include "input/input_manager.hpp"
 #include "render/render_manager.hpp"
+CGTask::render::render_manager *render;
 int main()
 {
     int width = 800, height = 600;
@@ -36,16 +37,19 @@ int main()
         return -1;
     }
     glViewport(0, 0, width, height);
-    glfwSetFramebufferSizeCallback(window,
-            [](GLFWwindow *, int width, int height)
-            {
-                glViewport(0, 0, width, height);
-            });
-
     try
     {
         CGTask::input::input_manager input_manager;
-        CGTask::render::render_manager render_manager;
+        CGTask::render::render_manager render_manager(width, height);
+        render = &render_manager;
+        glfwSetFramebufferSizeCallback(window,
+                [](GLFWwindow *, int new_width, int new_height)
+                {
+                    glViewport(0, 0, new_width, new_height);
+                    if (render)
+                        render->set_size(new_width, new_height);
+                });
+
 
         while (!glfwWindowShouldClose(window))
         {
