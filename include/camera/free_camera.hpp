@@ -68,6 +68,11 @@ namespace CGTask::camera
             update_view();
         }
 
+        void orthographic_scale(double scale)
+        {
+            orthographic_scale_ = scale;
+            update_projection();
+        }
         void set_size(std::size_t new_width, std::size_t new_height)
         {
             width = new_width;
@@ -103,7 +108,7 @@ namespace CGTask::camera
             double cos_pitch_rad = cos(pitch_rad);
             if (cos_pitch_rad == 0)
                 cos_pitch_rad += 0.0000000000001;
-            yaw = glm::degrees(-asin(dir.z / cos_pitch_rad));
+            yaw = glm::degrees(-asin(dir.y / cos_pitch_rad));
             if (dir.x < 0)
                 yaw = 180 - yaw;
             pitch = glm::degrees(pitch_rad);
@@ -121,10 +126,14 @@ namespace CGTask::camera
         void update_projection()
         {
             if (is_orthographic)
-                projection_matrix = glm::ortho(-(float)width / 2, (float)width / 2,
-                        -(float)height / 2, (float)height / 2, 0.01f, 1000.f);
+                projection_matrix = glm::ortho(
+                        -(float)width / (2 * orthographic_scale_),
+                        (float)width / (2 * orthographic_scale_),
+                        -(float)height / (2 * orthographic_scale_),
+                        (float)height / (2 * orthographic_scale_),
+                        0.01f, 1000.f);
             else
-                projection_matrix = glm::perspective(glm::radians(60.0f), (float)width/(float)height, 0.01f, 1000.0f);
+                projection_matrix = glm::perspective(glm::radians(45.0f), (float)width/(float)height, 0.01f, 1000.0f);
         }
         void move_impl(std::bitset<6> const &input, float speed)
         {
@@ -155,6 +164,7 @@ namespace CGTask::camera
         glm::vec3 position;
         glm::vec3 forward;
         std::size_t width, height;
+        float orthographic_scale_ = 1;
         bool is_orthographic = false;
         float pitch = 0, yaw = 0;
 

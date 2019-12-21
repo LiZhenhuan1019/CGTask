@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <utility>
 
 namespace CGTask::input
 {
@@ -13,16 +14,20 @@ namespace CGTask::input
         }
         void update()
         {
-            double current_time = glfwGetTime();
-            delta_time_ = current_time - last_time;
-            last_time = current_time;
+            current_time_ = glfwGetTime();
+            delta_time_ = current_time_ - std::exchange(last_time, current_time_);
         }
         double delta_time()
         {
             return delta_time_;
         }
+        double current()
+        {
+            return current_time_;
+        }
     private:
         double last_time;
         double delta_time_;
+        double current_time_;
     };
 }

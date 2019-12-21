@@ -4,7 +4,7 @@
 #include <stdexcept>
 #include "manager_base.hpp"
 
-namespace CGTask::render
+namespace CGTask::model
 {
     struct buffer_exception : public std::logic_error 
     {
@@ -62,7 +62,7 @@ namespace CGTask::render
                     throw invalid_vao("vao_manager::vao_manager: not a vao") :
                     vao, vao_deleter)
         {}
-        void bind_vertex_array()
+        void bind_vertex_array() const
         {
             glBindVertexArray(id());
         }

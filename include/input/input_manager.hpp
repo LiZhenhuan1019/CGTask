@@ -17,6 +17,8 @@ namespace CGTask::input
             :render(render), camera(camera)
         {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            if (glfwRawMouseMotionSupported())
+                glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
             glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
         }
         void process_input(GLFWwindow *window)
@@ -64,6 +66,17 @@ namespace CGTask::input
             y_offset *= sensitivity;
             camera.turn(x_offset, y_offset);
         }
+        void scroll_callback(GLFWwindow *, double /*xoffset*/, double yoffset)
+        {
+            yoffset /= 5;
+            double factor = 0;
+            if (yoffset >= 0)
+                factor = yoffset + 1;
+            else
+                factor = 1 / (-yoffset + 1);
+            scale = std::clamp(scale * factor, 0.0, 1000.0);
+            camera.orthographic_scale(scale);
+        }
     private:
         delta_timer timer;
         [[maybe_unused]] render::render_manager &render;
@@ -71,5 +84,6 @@ namespace CGTask::input
 
         bool first_mouse = true;
         double last_x = 0, last_y = 0;
+        double scale = 1;
     };
 }

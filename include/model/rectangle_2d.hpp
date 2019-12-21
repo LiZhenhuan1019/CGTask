@@ -2,13 +2,13 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/mat4x4.hpp>
-#include <iostream>
-#include "render/buffer_manager.hpp"
+#include "model/buffer_manager.hpp"
+#include "model/transform.hpp"
 
-namespace CGTask::render
+namespace CGTask::model
 {
     template <typename Float = float>
-    class rectangle_2d
+    class rectangle_2d : public transformable
     {
     public:
         rectangle_2d(float height)
@@ -31,10 +31,6 @@ namespace CGTask::render
             make_buffer(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW).detach();
             make_buffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW).detach();
             set_vertex_attribute_pointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
-        }
-        glm::mat4 model()
-        {
-            return glm::mat4(1.0f);
         }
         glm::vec4 color()
         {

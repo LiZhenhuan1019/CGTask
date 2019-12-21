@@ -5,13 +5,14 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <cstdlib>
 #include <vector>
-#include "render/buffer_manager.hpp"
+#include "model/buffer_manager.hpp"
+#include "model/transform.hpp"
 
 
-namespace CGTask::render
+namespace CGTask::model
 {
     template <typename Float = float>
-    class axis_2d
+    class axis_2d : public transformable
     {
         struct objects
         {
@@ -23,18 +24,12 @@ namespace CGTask::render
         axis_2d(std::size_t size)
             : size(size), obj(make())
         {}
-        void draw()
+        void draw() const
         {
             obj.vao.bind_vertex_array();
             glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
         }
-        glm::mat4 model() const
-        {
-            return glm::mat4(1.0f);
-        }
-        void set_size(std::size_t , std::size_t )
-        {
-        }
+        
     private:
         std::size_t size;
         objects obj;

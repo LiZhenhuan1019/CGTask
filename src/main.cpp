@@ -6,6 +6,7 @@
 #include <sched.h>
 
 #include "input/input_manager.hpp"
+#include "model/model_manager.hpp"
 #include "render/render_manager.hpp"
 #include "camera/free_camera.hpp"
 
@@ -42,12 +43,13 @@ int main()
         std::cout << "Failed to initialized GLAD" << std::endl;
         return -1;
     }
-    glfwWindowHint(GLFW_DEPTH_BITS, 32);
     glViewport(0, 0, width, height);
     try
     {
-        CGTask::camera::free_camera camera(glm::vec3(200.f, 100.0f, 100.f), glm::vec3(-1.0f, -1.0f, -1.0f), width, height);
-        CGTask::render::render_manager render_manager(1000, camera);
+        CGTask::camera::free_camera camera(glm::vec3(0, 500.0f, 0), glm::vec3(0, -1.0f, 0), width, height);
+        camera.orthographic();
+        CGTask::model::model_manager model_manager;
+        CGTask::render::render_manager render_manager(camera, model_manager);
         CGTask::input::input_manager input_manager(window, render_manager, camera);
         ::camera = &camera;
         ::render = &render_manager;
@@ -56,8 +58,6 @@ int main()
                 [](GLFWwindow *, int new_width, int new_height)
                 {
                     glViewport(0, 0, new_width, new_height);
-                    if (::render)
-                        ::render->set_size(new_width, new_height);
                     if (::camera)
                         ::camera->set_size(new_width, new_height);
                 });
@@ -73,10 +73,17 @@ int main()
                     if (input)
                         input->mouse_callback(window, xpos, ypos);
                 });
+        glfwSetScrollCallback(window, 
+                [](GLFWwindow *window, double xoffset, double yoffset)
+                {
+                    if (input)
+                        input->scroll_callback(window, xoffset, yoffset);
+                });
 
         while (!glfwWindowShouldClose(window))
         {
             input_manager.process_input(window);
+            model_manager.update();
             render_manager.render();
             glfwSwapBuffers(window);
             glfwPollEvents();
