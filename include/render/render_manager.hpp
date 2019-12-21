@@ -20,26 +20,28 @@ namespace CGTask::render
     public:
         render_manager(std::size_t far, camera::free_camera const&camera)
             : axis(far), rectangle(0.0f), cube_(glm::vec3(0, 0, 0), 10, 10, 10), camera(camera)
-        {}
+        {
+            glEnable(GL_DEPTH_TEST);
+        }
         void render()
         {
-            //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             {
-                /*glUseProgram(uniform_color_program.id());*/
-                //load_view_projection_matrix(uniform_color_program.id());
-                //int model_location = glGetUniformLocation(uniform_color_program.id(), "model");
-                //glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(rectangle.model()));
-                //int color_location = glGetUniformLocation(uniform_color_program.id(), "fragcolor");
-                //glUniform4fv(color_location, 1, glm::value_ptr(rectangle.color()));
-                /*rectangle.draw();*/
+                glUseProgram(uniform_color_program.id());
+                load_view_projection_matrix(uniform_color_program.id());
+                int model_location = glGetUniformLocation(uniform_color_program.id(), "model");
+                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(rectangle.model()));
+                int color_location = glGetUniformLocation(uniform_color_program.id(), "fragcolor");
+                glUniform4fv(color_location, 1, glm::value_ptr(rectangle.color()));
+                rectangle.draw();
             }
             {
                 glUseProgram(vertex_color_program.id());
                 load_view_projection_matrix(vertex_color_program.id());
                 int model_location = glGetUniformLocation(vertex_color_program.id(), "model");
                 glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(axis.model()));
-                //axis.draw();
+                axis.draw();
                 
                 glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(cube_.model()));
                 cube_.draw();

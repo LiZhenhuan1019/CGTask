@@ -43,10 +43,6 @@ int main()
         return -1;
     }
     glfwWindowHint(GLFW_DEPTH_BITS, 32);
-    glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_LEQUAL);
-    glDepthFunc(GL_LESS);
-    glDepthMask(GL_TRUE);
     glViewport(0, 0, width, height);
     try
     {

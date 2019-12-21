@@ -122,9 +122,9 @@ namespace CGTask::camera
         {
             if (is_orthographic)
                 projection_matrix = glm::ortho(-(float)width / 2, (float)width / 2,
-                        -(float)height / 2, (float)height / 2, 0.0f, 000.f);
+                        -(float)height / 2, (float)height / 2, 0.01f, 1000.f);
             else
-                projection_matrix = glm::perspective(glm::radians(60.0f), (float)width/(float)height, 0.0f, 1000.0f);
+                projection_matrix = glm::perspective(glm::radians(60.0f), (float)width/(float)height, 0.01f, 1000.0f);
         }
         void move_impl(std::bitset<6> const &input, float speed)
         {
