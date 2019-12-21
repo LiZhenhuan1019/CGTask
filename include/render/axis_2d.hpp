@@ -20,8 +20,8 @@ namespace CGTask::render
             buffer_manager ebo;
         };
     public:
-        axis_2d(std::size_t width, std::size_t height)
-            : width(width), height(height), obj(make())
+        axis_2d(std::size_t size)
+            : size(size), obj(make())
         {}
         void draw()
         {
@@ -32,41 +32,40 @@ namespace CGTask::render
         {
             return glm::mat4(1.0f);
         }
-        void set_size(std::size_t width, std::size_t height)
+        void set_size(std::size_t , std::size_t )
         {
-            this->width = width;
-            this->height = height;
-            fill_vertex_buffer(obj.vbo.id());
         }
     private:
-        std::size_t width, height;
+        std::size_t size;
         objects obj;
         objects make()
         {
             unsigned int indices[] = 
             {
                 0, 1,
-                0, 2,
-                0, 3,
-                0, 4
+                2, 3,
+                4, 5,
             };
           
             vao_manager vao = make_vao();
             buffer_manager vbo = make_buffer(GL_ARRAY_BUFFER, 0, nullptr, GL_STATIC_DRAW);
             fill_vertex_buffer(vbo.id());
             buffer_manager ebo = make_buffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-            set_vertex_attribute_pointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(Float), nullptr);
+            set_vertex_attribute_pointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(Float), nullptr);
+            set_vertex_attribute_pointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(Float), (void *)(3 * sizeof(float)));
             return objects{std::move(vao), std::move(vbo), std::move(ebo)};
         }
         void fill_vertex_buffer(GLuint vbo)
         {
             Float points[] =
             {
-                0, 0, 0,
-                (Float)width/2, 0, 0,
-                0, (Float)height/2, 0,
-                -(Float)width/2, 0, 0,
-                0, -(Float)height/2, 0
+                // position             color
+                (Float)size, 0, 0,  1.0f, 0.0f, 0.0f,
+                -(Float)size, 0, 0, 1.0f, 0.0f, 0.0f,
+                0, (Float)size, 0,  0.0f, 1.0f, 0.0f,
+                0, -(Float)size, 0, 0.0f, 1.0f, 0.0f,
+                0, 0, (Float)size,  0.0f,  0.0f, 1.0f,
+                0, 0, -(Float)size, 0.0f,  0.0f, 1.0f
             };
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER , sizeof(points), points, GL_STATIC_DRAW);

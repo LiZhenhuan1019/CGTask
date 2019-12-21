@@ -10,54 +10,65 @@
 #include "render/buffer_manager.hpp"
 #include "render/axis_2d.hpp"
 #include "render/rectangle_2d.hpp"
+#include "render/cube.hpp"
+#include "camera/free_camera.hpp"
 
 namespace CGTask::render
 {
     class render_manager
     {
     public:
-        render_manager(std::size_t width, std::size_t height)
-            : axis(width, height)
-        {
-            set_projection(width, height);
-            
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+        render_manager(std::size_t far, camera::free_camera const&camera)
+            : axis(far), rectangle(0.0f), cube_(glm::vec3(0, 0, 0), 10, 10, 10), camera(camera)
+        {}
         void render()
         {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-            
-            glUseProgram(program.id());
-
-            int view_location = glGetUniformLocation(program.id(), "view");
-            glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(view));
-            int projection_location = glGetUniformLocation(program.id(), "projection");
-            glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(projection));
-            int model_location = glGetUniformLocation(program.id(), "model");
-            glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(axis.model()));
-            axis.draw();
-            glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(rectangle.model()));
-            rectangle.draw();
+            //glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            {
+                /*glUseProgram(uniform_color_program.id());*/
+                //load_view_projection_matrix(uniform_color_program.id());
+                //int model_location = glGetUniformLocation(uniform_color_program.id(), "model");
+                //glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(rectangle.model()));
+                //int color_location = glGetUniformLocation(uniform_color_program.id(), "fragcolor");
+                //glUniform4fv(color_location, 1, glm::value_ptr(rectangle.color()));
+                /*rectangle.draw();*/
+            }
+            {
+                glUseProgram(vertex_color_program.id());
+                load_view_projection_matrix(vertex_color_program.id());
+                int model_location = glGetUniformLocation(vertex_color_program.id(), "model");
+                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(axis.model()));
+                //axis.draw();
+                
+                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(cube_.model()));
+                cube_.draw();
+            }
         }
-        void set_size(std::size_t width, std::size_t height)
+        void set_size(std::size_t new_width, std::size_t new_height)
         {
-            set_projection(width, height);
-            axis.set_size(width, height);
+            axis.set_size(new_width, new_height);
         }
+        
     private:
-        void set_projection(std::size_t width, std::size_t height)
+        void load_view_projection_matrix(GLuint program)
         {
-            projection = glm::ortho(-(float)width / 2, (float)width / 2,
-                    -(float)height / 2, (float)height / 2, 0.0f, 100.f);
+            int view_location = glGetUniformLocation(program, "view");
+            glUniformMatrix4fv(view_location, 1, GL_FALSE, glm::value_ptr(camera.view()));
+            int projection_location = glGetUniformLocation(program, "projection");
+            glUniformMatrix4fv(projection_location, 1, GL_FALSE, glm::value_ptr(camera.projection()));
         }
 
-        glm::mat4 view = glm::mat4(1.0f);
-        glm::mat4 projection;
-        shader_program_handler program = make_program(
-                make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_demo.vert")),
-                make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_demo.frag")));
+
+        shader_program_handler uniform_color_program = make_program(
+                make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_nocolor.vert")),
+                make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_uniform_color.frag")));
+        shader_program_handler vertex_color_program = make_program(
+                make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_color.vert")),
+                make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_vertex_color.frag")));
         axis_2d<> axis;
         rectangle_2d<> rectangle;
+        cube cube_;
+        camera::free_camera const&camera;
     };
 }

@@ -6,8 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(PkgConfig REQUIRED)
 pkg_search_module(GLFW REQUIRED glfw3)
 
-configure_file("assets/shaders/2d_demo.vert" "assets/shaders/2d_demo.vert" COPYONLY)
-configure_file("assets/shaders/2d_demo.frag" "assets/shaders/2d_demo.frag" COPYONLY)
+configure_file("assets/shaders/2d_nocolor.vert" "assets/shaders/2d_nocolor.vert" COPYONLY)
+configure_file("assets/shaders/2d_uniform_color.frag" "assets/shaders/2d_uniform_color.frag" COPYONLY)
+configure_file("assets/shaders/2d_color.vert" "assets/shaders/2d_color.vert" COPYONLY)
+configure_file("assets/shaders/2d_vertex_color.frag" "assets/shaders/2d_vertex_color.frag" COPYONLY)
 
 set(SOURCES 
     src/glad.c

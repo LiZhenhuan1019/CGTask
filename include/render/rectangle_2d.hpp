@@ -1,7 +1,8 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <iostream>
 #include "render/buffer_manager.hpp"
 
 namespace CGTask::render
@@ -9,21 +10,24 @@ namespace CGTask::render
     template <typename Float = float>
     class rectangle_2d
     {
-        static constexpr float vertices[] =
-        {
-            50.0f,  50.0f,  0.0f,  // top right
-            50.0f,  -50.0f, 0.0f,  // bottom right
-            -50.0f, -50.0f, 0.0f,  // bottom left
-            -50.0f, 50.0f,  0.0f   // top left
-        };
-        static constexpr unsigned int indices[] =
-        {
-            0, 1, 3, 2
-        };
     public:
-        rectangle_2d()
+        rectangle_2d(float height)
             : vao(make_vao())
         {
+            float vertices[] =
+            {
+                50.0f,  50.0f,  height,  // top right
+                -50.0f, 50.0f,  height,   // top left
+                -50.0f, -50.0f, height,  // bottom left
+                50.0f,  -50.0f, height,  // bottom right
+            };
+
+            static constexpr unsigned int indices[] =
+            {
+                0, 1, 2, 0, 2, 3,
+                0, 2, 1, 0, 3, 2
+
+            };
             make_buffer(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW).detach();
             make_buffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW).detach();
             set_vertex_attribute_pointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
@@ -32,10 +36,14 @@ namespace CGTask::render
         {
             return glm::mat4(1.0f);
         }
+        glm::vec4 color()
+        {
+            return glm::vec4(1.0f, 0.5f, 0.2f, 1.0f);
+        }
         void draw()
         {
             vao.bind_vertex_array();
-            glDrawElements(GL_TRIANGLE_STRIP, 4, GL_UNSIGNED_INT, nullptr);
+            glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, nullptr);
         }
     private:
         vao_manager vao;
