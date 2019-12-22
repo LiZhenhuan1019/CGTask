@@ -5,7 +5,7 @@
 #include <glm/mat4x4.hpp>
 #include <cmath>
 #include "model/buffer_manager.hpp"
-#include "model/transform.hpp"
+#include "model/transformable.hpp"
 
 namespace CGTask::model
 {

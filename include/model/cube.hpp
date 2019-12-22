@@ -4,7 +4,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "model/buffer_manager.hpp"
-#include "model/transform.hpp"
+#include "model/transformable.hpp"
 
 namespace CGTask::model
 {

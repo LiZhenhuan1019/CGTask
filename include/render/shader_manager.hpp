@@ -1,6 +1,7 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 #include <initializer_list>
 #include <string_view>
 #include <iostream>
@@ -106,6 +107,57 @@ namespace CGTask::render
     {
         glDeleteProgram(id);
     };
+
+        class shader_view
+        {
+        public:
+            explicit shader_view(GLuint id)
+                : id_(id)
+            {}
+            GLuint id() const
+            {
+                return id_;
+            }
+            template <typename NameOrLoc>
+            void set(NameOrLoc name_or_loc, int value) const
+            {
+                glUniform1i(get_location(name_or_loc), value);
+            }
+            template <typename NameOrLoc>
+            void set(NameOrLoc name_or_loc, float value) const
+            {
+                glUniform1f(get_location(name_or_loc), value);
+            }
+            template <typename NameOrLoc>
+            void set(NameOrLoc name_or_loc, glm::vec4 const &vec) const
+            {
+                glUniform4fv(get_location(name_or_loc), 1, glm::value_ptr(vec));
+            }
+            template <typename NameOrLoc>
+            void set(NameOrLoc name_or_loc, glm::mat4 const &matrix) const
+            {
+                glUniformMatrix4fv(get_location(name_or_loc), 1, GL_FALSE, glm::value_ptr(matrix));
+            }
+            GLint location(std::string_view name) const
+            {
+                return glGetUniformLocation(id(), name.data());
+            }
+            void use() const
+            {
+                glUseProgram(id());
+            }
+        private:
+            GLint get_location(std::string_view name) const
+            {
+                return location(name);
+            }
+            GLint get_location(GLint loc) const
+            {
+                return loc;
+            }
+            GLuint id_;
+        };
+    
     class shader_program_handler: public manager_base<GLuint>
     {
     public:
@@ -114,6 +166,11 @@ namespace CGTask::render
                     throw invalid_program("shader_program_handler::shader_program_handler: not a program") :
                     program_id, shader_program_deleter)
         {}
+        shader_view use() const
+        {
+            glUseProgram(id());
+            return shader_view(id());
+        }
     };
     namespace detail
     {

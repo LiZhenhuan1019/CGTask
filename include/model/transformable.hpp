@@ -68,4 +68,8 @@ namespace CGTask::model
         glm::mat4 rot;
         glm::vec3 pos;
     };
+    class transform_ptr
+    {
+        transformable *ptr;
+    };
 }

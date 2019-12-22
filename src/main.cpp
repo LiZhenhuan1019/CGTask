@@ -46,7 +46,7 @@ int main()
     glViewport(0, 0, width, height);
     try
     {
-        CGTask::camera::free_camera camera(glm::vec3(0, 500.0f, 0), glm::vec3(0, -1.0f, 0), width, height);
+        CGTask::camera::free_camera camera(glm::vec3(0, 300.0f, 0), glm::vec3(0, -1.0f, 0), width, height);
         camera.orthographic();
         CGTask::model::model_manager model_manager;
         CGTask::render::render_manager render_manager(camera, model_manager);

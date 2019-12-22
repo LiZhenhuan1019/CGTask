@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <optional>
+#include <stdexcept>
 #include "render/shader_manager.hpp"
 #include "model/buffer_manager.hpp"
 #include "model/model_manager.hpp"
@@ -16,6 +17,10 @@
 
 namespace CGTask::render
 {
+    struct font_error : std::runtime_error
+    {
+        using runtime_error::runtime_error;
+    };
     class render_manager
     {
     public:
@@ -24,29 +29,34 @@ namespace CGTask::render
         {
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         }
         void render()
         {
             glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             {
-                glUseProgram(uniform_color_program.id());
+                auto shader = uniform_color_program.use();
                 load_view_projection_matrix(uniform_color_program.id());
                 int model_location = glGetUniformLocation(uniform_color_program.id(), "model");
                 int color_location = glGetUniformLocation(uniform_color_program.id(), "fragcolor");
 
-                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model.get_ellipse().transform()));
-                glUniform4fv(color_location, 1, glm::value_ptr(model.get_ellipse().color()));
+                shader.set(model_location, model.get_ellipse().transform());
+                shader.set(color_location, model.get_ellipse().color());
                 model.get_ellipse().draw();
             }
             {
-                glUseProgram(vertex_color_program.id());
+                auto shader = vertex_color_program.use();
                 load_view_projection_matrix(vertex_color_program.id());
                 int model_location = glGetUniformLocation(vertex_color_program.id(), "model");
-                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model.get_axis().transform()));
+
+                shader.set(model_location, model.get_axis().transform());
                 model.get_axis().draw();
                 
-                glUniformMatrix4fv(model_location, 1, GL_FALSE, glm::value_ptr(model.get_cube().transform()));
+                shader.set(model_location, model.get_cube().transform());
                 model.get_cube().draw();
             }
         }

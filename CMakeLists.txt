@@ -18,7 +18,7 @@ set(HEADERS
     include/glad/glad.h
     include/KHR/khrplatform.h
     include/input/input_manager.hpp
-    include/model/2d/ellipse.hpp
+    include/model/ellipse_2d.hpp
     include/render/render_manager.hpp
     include/render/shader_manager.hpp)
 
