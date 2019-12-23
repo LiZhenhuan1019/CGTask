@@ -108,55 +108,55 @@ namespace CGTask::render
         glDeleteProgram(id);
     };
 
-        class shader_view
+    class shader_view
+    {
+    public:
+        explicit shader_view(GLuint id)
+            : id_(id)
+        {}
+        GLuint id() const
         {
-        public:
-            explicit shader_view(GLuint id)
-                : id_(id)
-            {}
-            GLuint id() const
-            {
-                return id_;
-            }
-            template <typename NameOrLoc>
-            void set(NameOrLoc name_or_loc, int value) const
-            {
-                glUniform1i(get_location(name_or_loc), value);
-            }
-            template <typename NameOrLoc>
-            void set(NameOrLoc name_or_loc, float value) const
-            {
-                glUniform1f(get_location(name_or_loc), value);
-            }
-            template <typename NameOrLoc>
-            void set(NameOrLoc name_or_loc, glm::vec4 const &vec) const
-            {
-                glUniform4fv(get_location(name_or_loc), 1, glm::value_ptr(vec));
-            }
-            template <typename NameOrLoc>
-            void set(NameOrLoc name_or_loc, glm::mat4 const &matrix) const
-            {
-                glUniformMatrix4fv(get_location(name_or_loc), 1, GL_FALSE, glm::value_ptr(matrix));
-            }
-            GLint location(std::string_view name) const
-            {
-                return glGetUniformLocation(id(), name.data());
-            }
-            void use() const
-            {
-                glUseProgram(id());
-            }
-        private:
-            GLint get_location(std::string_view name) const
-            {
-                return location(name);
-            }
-            GLint get_location(GLint loc) const
-            {
-                return loc;
-            }
-            GLuint id_;
-        };
+            return id_;
+        }
+        template <typename NameOrLoc>
+        void set(NameOrLoc name_or_loc, int value) const
+        {
+            glUniform1i(get_location(name_or_loc), value);
+        }
+        template <typename NameOrLoc>
+        void set(NameOrLoc name_or_loc, float value) const
+        {
+            glUniform1f(get_location(name_or_loc), value);
+        }
+        template <typename NameOrLoc>
+        void set(NameOrLoc name_or_loc, glm::vec4 const &vec) const
+        {
+            glUniform4fv(get_location(name_or_loc), 1, glm::value_ptr(vec));
+        }
+        template <typename NameOrLoc>
+        void set(NameOrLoc name_or_loc, glm::mat4 const &matrix) const
+        {
+            glUniformMatrix4fv(get_location(name_or_loc), 1, GL_FALSE, glm::value_ptr(matrix));
+        }
+        GLint location(std::string_view name) const
+        {
+            return glGetUniformLocation(id(), name.data());
+        }
+        void use() const
+        {
+            glUseProgram(id());
+        }
+    private:
+        GLint get_location(std::string_view name) const
+        {
+            return location(name);
+        }
+        GLint get_location(GLint loc) const
+        {
+            return loc;
+        }
+        GLuint id_;
+    };
     
     class shader_program_handler: public manager_base<GLuint>
     {
@@ -166,9 +166,8 @@ namespace CGTask::render
                     throw invalid_program("shader_program_handler::shader_program_handler: not a program") :
                     program_id, shader_program_deleter)
         {}
-        shader_view use() const
+        shader_view view() const
         {
-            glUseProgram(id());
             return shader_view(id());
         }
     };
@@ -204,4 +203,68 @@ namespace CGTask::render
         }
         return shader_program_handler(program_id);
     }
+
+    enum class shader_type
+    {
+        uniform_color_shader,
+        vertex_color_shader,
+
+        shader_number
+    };
+
+    class shader_handlers
+    {
+    public:
+        shader_handlers()
+        {
+            handlers.push_back(make_program(
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_nocolor.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_uniform_color.frag"))));
+            handlers.push_back(make_program(
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_color.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_vertex_color.frag"))));
+        }
+        std::vector<shader_program_handler> handlers;
+    };
+    class shader_selector
+    {
+    public:
+        shader_selector(std::vector<shader_program_handler> const& handlers)
+        {
+            assert(!handlers.empty());
+            views.reserve(handlers.size());
+            for (auto const &handler : handlers)
+            {
+                views.push_back(handler.view());
+            }
+            views[current].use();
+        }
+        shader_view select(shader_type type)
+        {
+            assert(type < shader_type::shader_number);
+            return select(std::size_t(type));
+        }
+        shader_view select(std::size_t shader_id)
+        {
+            assert(shader_id < views.size());
+            if (shader_id != current)
+            {
+                current = shader_id;
+                views[current].use();
+            }
+            return views[shader_id];
+        }
+        template <typename Func>
+        void foreach(Func func)
+        {
+            for (std::size_t i = 0; i < views.size(); ++i)
+            {
+                auto shader = select(i);
+                func(shader);
+            }
+        }
+    private:
+        std::vector<shader_view> views;
+        std::size_t current = 0;
+    };
 }

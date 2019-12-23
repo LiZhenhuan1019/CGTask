@@ -4,12 +4,12 @@
 #include <glm/vec2.hpp>
 #include <glm/mat4x4.hpp>
 #include <cmath>
+#include "render/shader_manager.hpp"
 #include "model/buffer_manager.hpp"
-#include "model/transformable.hpp"
 
 namespace CGTask::model
 {
-    class ellipse_2d : public transformable
+    class ellipse_2d
     {
     public:
         ellipse_2d(float x_axis)
@@ -74,8 +74,9 @@ namespace CGTask::model
         {
             return glm::vec4(0.2f, 0.5f, 1.0f, 1.0f);
         }
-        void draw() const
+        void draw(render::shader_view const &shader) const
         {
+            shader.set("fragcolor", color());
             vao.bind_vertex_array();
             glDrawArrays(GL_POINTS, 0, size / 3);
         }

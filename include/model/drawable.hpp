@@ -11,14 +11,24 @@ namespace CGTask::model
     {
     public:
         template <typename Value>
-        drawable(Value &&value)
-            : object(std::make_unique<drawable_object<std::remove_cv_t<std::remove_reference_t<Value>>>>(std::forward<Value>(value)))
+        drawable(Value &&value, render::shader_type type)
+            : eraser(std::make_unique<drawable_concrete<
+                    std::remove_cv_t<std::remove_reference_t<Value>>>>(std::forward<Value>(value))),
+              type(type)
         {}
         void draw(render::shader_view const&shader) const
         {
-            object->draw(shader);
+            eraser->draw(shader);
+        }
+        render::shader_type shader_type() const
+        {
+            return type;
         }
     private:
+        class drawable_base;
+        std::unique_ptr<drawable_base> eraser;
+        render::shader_type type;
+
         class drawable_base
         {
         public:
@@ -26,11 +36,11 @@ namespace CGTask::model
             virtual void draw(render::shader_view const &shader) const = 0;
         };
         template <typename Value>
-        class drawable_object : public drawable_base
+        class drawable_concrete : public drawable_base
         {
         public:
-            template <typename U>
-            drawable_object(U &&value)
+            template <typename U, typename = std::enable_if<std::is_constructible_v<Value, U>>>
+            drawable_concrete(U &&value)
                 : value(std::forward<U>(value))
             {}
             void draw(render::shader_view const &shader) const override 
@@ -40,7 +50,5 @@ namespace CGTask::model
         private:
             Value value;
         };
-        std::unique_ptr<drawable_base> object;
     };
-    using drawable_ref = std::reference_wrapper<drawable>;
 }

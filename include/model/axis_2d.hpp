@@ -6,15 +6,14 @@
 #include <cstdlib>
 #include <vector>
 #include "model/buffer_manager.hpp"
-#include "model/transformable.hpp"
-
+#include "render/shader_manager.hpp"
 
 namespace CGTask::model
 {
     template <typename Float = float>
-    class axis_2d : public transformable
+    class axis_2d
     {
-        struct objects
+        struct buffers
         {
             vao_manager vao;
             buffer_manager vbo;
@@ -24,7 +23,7 @@ namespace CGTask::model
         axis_2d(std::size_t size)
             : size(size), obj(make())
         {}
-        void draw() const
+        void draw(render::shader_view const &shader) const
         {
             obj.vao.bind_vertex_array();
             glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
@@ -32,8 +31,8 @@ namespace CGTask::model
         
     private:
         std::size_t size;
-        objects obj;
-        objects make()
+        buffers obj;
+        buffers make()
         {
             unsigned int indices[] = 
             {
@@ -48,7 +47,7 @@ namespace CGTask::model
             buffer_manager ebo = make_buffer(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
             set_vertex_attribute_pointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(Float), nullptr);
             set_vertex_attribute_pointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(Float), (void *)(3 * sizeof(float)));
-            return objects{std::move(vao), std::move(vbo), std::move(ebo)};
+            return buffers{std::move(vao), std::move(vbo), std::move(ebo)};
         }
         void fill_vertex_buffer(GLuint vbo)
         {

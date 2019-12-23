@@ -3,19 +3,19 @@
 #include <GLFW/glfw3.h>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "render/shader_manager.hpp"
 #include "model/buffer_manager.hpp"
-#include "model/transformable.hpp"
 
 namespace CGTask::model
 {
-    class cube : public transformable
+    class cube
     {
     public:
         cube(float length, float width, float height)
             : vao(make(length, width, height))
         {
         }
-        void draw() const
+        void draw(render::shader_view const &view) const
         {
             vao.bind_vertex_array();
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
