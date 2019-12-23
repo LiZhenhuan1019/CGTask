@@ -5,86 +5,29 @@
 #include <cxxabi.h>
 #include <sched.h>
 
+#include "glfw_window.hpp"
 #include "input/input_manager.hpp"
-#include "model/model_manager.hpp"
+#include "model/model_manager_task1.hpp"
 #include "render/render_manager.hpp"
 #include "camera/free_camera.hpp"
 
-CGTask::render::render_manager *render;
-CGTask::input::input_manager *input;
-CGTask::camera::free_camera *camera;
 int main()
 {
     int width = 800, height = 600;
-    glfwSetErrorCallback([](int error_code, char const *description)
-            {
-                std::cout << "error code: " << std::hex << error_code << 
-                        " with description: '" << description << "'" << std::endl;
-            });
-    if (!glfwInit())
-    {
-        std::cout << "Failed to initialize GLFW" <<std::endl;
-        return -1;
-    }
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-    GLFWwindow *window = glfwCreateWindow(width, height, "CGTask", nullptr, nullptr);
-    if (!window)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialized GLAD" << std::endl;
-        return -1;
-    }
-    glViewport(0, 0, width, height);
+    GLFWwindow *window = CGTask::make_window(width, height);
     try
     {
         CGTask::camera::free_camera camera(glm::vec3(0, 300.0f, 0), glm::vec3(0, -1.0f, 0), width, height);
         camera.orthographic();
-        CGTask::model::model_manager model_manager;
-        CGTask::render::render_manager render_manager(camera, model_manager);
-        CGTask::input::input_manager input_manager(window, render_manager, camera);
-        ::camera = &camera;
-        ::render = &render_manager;
-        ::input = &input_manager;
-        glfwSetFramebufferSizeCallback(window,
-                [](GLFWwindow *, int new_width, int new_height)
-                {
-                    glViewport(0, 0, new_width, new_height);
-                    if (::camera)
-                        ::camera->set_size(new_width, new_height);
-                });
-        glfwSetKeyCallback(window,
-                [](GLFWwindow *window, int key, int scancode, int action ,int mods)
-                {
-                    if (::input)
-                        input->input_callback(window, key, scancode, action, mods);
-                });
-        glfwSetCursorPosCallback(window,
-                [](GLFWwindow *window, double xpos, double ypos)
-                {
-                    if (input)
-                        input->mouse_callback(window, xpos, ypos);
-                });
-        glfwSetScrollCallback(window, 
-                [](GLFWwindow *window, double xoffset, double yoffset)
-                {
-                    if (input)
-                        input->scroll_callback(window, xoffset, yoffset);
-                });
-
+        CGTask::model::model_manager_task1 model;
+        CGTask::render::render_manager render(camera, model);
+        CGTask::input::input_manager input(window, render, camera);
+        CGTask::set_callback(window, camera, render, input);
         while (!glfwWindowShouldClose(window))
         {
-            input_manager.process_input(window);
-            model_manager.update();
-            render_manager.render();
+            input.process_input(window);
+            model.update();
+            render.render();
             glfwSwapBuffers(window);
             glfwPollEvents();
         }
