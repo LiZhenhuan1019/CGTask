@@ -15,3 +15,8 @@ add_executable(task1 src/task1.cpp src/glad.c )
 target_include_directories(task1 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${GLFW_INCLUDE_DIRS})
 target_link_libraries(task1 PRIVATE ${GLFW_LIBRARIES} dl)
 #target_compile_options(task1 PRIVATE -Werror -Wall -Wextra)
+
+add_executable(task2 src/task2.cpp src/glad.c )
+target_include_directories(task2 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${GLFW_INCLUDE_DIRS})
+target_link_libraries(task2 PRIVATE ${GLFW_LIBRARIES} dl)
+
