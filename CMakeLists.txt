@@ -11,18 +11,7 @@ configure_file("assets/shaders/2d_uniform_color.frag" "assets/shaders/2d_uniform
 configure_file("assets/shaders/2d_color.vert" "assets/shaders/2d_color.vert" COPYONLY)
 configure_file("assets/shaders/2d_vertex_color.frag" "assets/shaders/2d_vertex_color.frag" COPYONLY)
 
-set(SOURCES 
-    src/glad.c
-    src/main.cpp)
-set(HEADERS 
-    include/glad/glad.h
-    include/KHR/khrplatform.h
-    include/input/input_manager.hpp
-    include/model/ellipse_2d.hpp
-    include/render/render_manager.hpp
-    include/render/shader_manager.hpp)
-
-add_executable(task1 src/main.cpp src/glad.c include/glad/glad.h include/KHR/khrplatform.h)
+add_executable(task1 src/task1.cpp src/glad.c )
 target_include_directories(task1 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${GLFW_INCLUDE_DIRS})
 target_link_libraries(task1 PRIVATE ${GLFW_LIBRARIES} dl)
 #target_compile_options(task1 PRIVATE -Werror -Wall -Wextra)
