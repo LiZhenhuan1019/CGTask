@@ -35,7 +35,7 @@ vec4 calculate_point_light(Light light, vec3 normal, vec3 frag_position, vec3 vi
     vec3 norm = normalize(normal);
     float dot_norm_light = dot(norm, light_direction);
     float night_mix_value = smoothstep(0.0, 0.4, dot_norm_light);
-    float texture_mix_value = smoothstep(-0.3, 0.0, dot_norm_light);
+    float texture_mix_value = smoothstep(-0.1, 0.0, dot_norm_light);
 
     vec4 night_diffuse_color = texture(material.night_diffuse, texture_coord);
     vec4 diffuse_color = texture(material.diffuse, texture_coord);

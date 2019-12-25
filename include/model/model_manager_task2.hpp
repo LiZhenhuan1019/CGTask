@@ -27,13 +27,15 @@ namespace CGTask::model
     class model_manager_task2 : public model_manager
     {
     public:
-        model_manager_task2(camera::free_camera const&camera)
+        model_manager_task2(camera::free_camera const&camera, input::delta_timer &timer)
             : camera(camera),
+              timer(timer),
               axis_mesh(add(meshes, axis_2d<>(1000))), 
               ellipse_mesh(add(meshes, ellipse_2d(earth_orbit_major_axis))),
               axis_object(add(objects, object(axis_mesh))),
               ellipse_object(add(objects, object(ellipse_mesh)))
         {
+            timer.set_period(earth_revolution_period);
             get_transform(ellipse_object).rotate(glm::radians(90.0f), glm::vec3(1, 0, 0));
 
             sun_mesh = add(meshes, make_sun());
@@ -140,7 +142,7 @@ namespace CGTask::model
             int circle = t / earth_revolution_period;
             t -= circle * earth_revolution_period;
             assert(t >= 0);
-            math::point p = orbit.position_on_elliptic_orbit(t, earth_revolution_period, speed * 0.001);
+            math::point p = orbit.position_on_elliptic_orbit(t, earth_revolution_period, 0.000001);
             glm::vec3 pos(p.x, p.y, 0);
             get_transform(earth_object).position(pos);
             get_transform(earth_clouds_object).position(pos);

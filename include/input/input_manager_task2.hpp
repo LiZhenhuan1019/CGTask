@@ -15,8 +15,8 @@ namespace CGTask::input
     class input_manager_task2 : public input_manager
     {
     public:
-        input_manager_task2(GLFWwindow *window, render::render_manager &render, camera::free_camera &camera, model::model_manager_task2 &model)
-            :render(render), camera(camera), model(model)
+        input_manager_task2(GLFWwindow *window, render::render_manager &render, camera::free_camera &camera, model::model_manager_task2 &model, input::delta_timer &timer)
+            :render(render), camera(camera), model(model), timer(timer)
         {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             if (glfwRawMouseMotionSupported())
@@ -132,7 +132,7 @@ namespace CGTask::input
             camera.orthographic_scale(scale);
         }
     private:
-        delta_timer timer;
+        delta_timer &timer;
         [[maybe_unused]] render::render_manager &render;
         camera::free_camera &camera;
         model::model_manager_task2 &model;
