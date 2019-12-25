@@ -56,12 +56,9 @@ namespace CGTask::model
             for (unsigned int i = 0; i < textures.size(); ++i)
             {
                 std::string_view name = textures[i].type();
-                if (name == "diffuse")
-                {
-                    glActiveTexture(GL_TEXTURE0 + i);
-                    shader.set("material."s + name.data(), (int)i);
-                    textures[i].view().use();
-                }
+                glActiveTexture(GL_TEXTURE0 + i);
+                shader.set("material."s + name.data(), (int)i);
+                textures[i].view().use();
             }
 
             vao.bind_vertex_array();

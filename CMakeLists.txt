@@ -23,6 +23,12 @@ configure_file("assets/model/earth/Earth 2K.obj" "assets/model/earth/Earth 2K.ob
 configure_file("assets/model/earth/Textures/Diffuse_2K.png" "assets/model/earth/Textures/Diffuse_2K.png" COPYONLY)
 configure_file("assets/model/earth/Textures/Clouds_2K.png" "assets/model/earth/Textures/Clouds_2K.png" COPYONLY)
 
+configure_file("assets/model/moon/Moon 2K.obj" "assets/model/moon/Moon 2K.obj" COPYONLY)
+configure_file("assets/model/moon/Textures/Diffuse_2K.png" "assets/model/moon/Textures/Diffuse_2K.png" COPYONLY)
+
+configure_file("assets/model/sun/13913_Sun_v2_l3.obj" "assets/model/sun/13913_Sun_v2_l3.obj" COPYONLY)
+configure_file("assets/model/sun/13913_Sun_diff.jpg" "assets/model/sun/13913_Sun_diff.jpg" COPYONLY)
+
 add_executable(task1 src/task1.cpp src/glad.c )
 target_include_directories(task1 PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include PRIVATE ${GLFW_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS})
 target_link_libraries(task1 PRIVATE ${GLFW_LIBRARIES} dl ${ASSIMP_LIBRARIES})

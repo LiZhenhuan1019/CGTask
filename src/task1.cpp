@@ -6,7 +6,7 @@
 #include <sched.h>
 
 #include "glfw_window.hpp"
-#include "input/input_manager.hpp"
+#include "input/input_manager_task1.hpp"
 #include "model/model_manager_task1.hpp"
 #include "render/render_manager.hpp"
 #include "camera/free_camera.hpp"
@@ -21,7 +21,7 @@ int main()
         camera.orthographic();
         CGTask::model::model_manager_task1 model;
         CGTask::render::render_manager render(camera, model);
-        CGTask::input::input_manager input(window, render, camera);
+        CGTask::input::input_manager_task1 input(window, render, camera);
         CGTask::set_callback(window, camera, render, input);
         while (!glfwWindowShouldClose(window))
         {

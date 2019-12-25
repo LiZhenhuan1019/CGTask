@@ -21,8 +21,8 @@ uniform vec3 view_position;
 
 struct Material
 {
+    float ambient;
     sampler2D diffuse;
-    sampler2D specular;
     float shininess;
 };
 uniform Material material;
@@ -34,23 +34,19 @@ vec4 calculate_point_light(Light light, vec3 normal, vec3 frag_position, vec3 vi
     float attenuation = 1.0 / (light.constant + light.linear * distance + 
             light.quadratic * (distance * distance));    
 
-    vec4 ambient = light.ambient * texture_color;
-    ambient *= attenuation;
+    vec4 ambient = light.ambient * material.ambient *  texture_color;
 
     vec3 norm = normalize(normal);
     vec3 light_direction = normalize(light.position - frag_position);
     float diff = max(dot(norm, light_direction), 0.0);
     vec4 diffuse = light.diffuse * diff * texture_color;
-    diffuse *= attenuation;
 
-    float specular_strength = 1.0;
     vec3 view_direction = normalize(view_position - frag_position);
-    vec3 reflect_direction = reflect(-light_direction, norm);
-    float spec = pow(max(dot(view_direction, reflect_direction), 0.0), material.shininess);
-    vec4 specular = light.specular * spec * texture_color;
-    specular *= attenuation;
+    vec3 halfway_direction = normalize(light_direction + view_direction);
+    float spec = pow(max(dot(normal, halfway_direction), 0.0), material.shininess);
+    vec4 specular = light.specular * spec * texture_color * smoothstep(0, 0.12, dot(norm, light_direction));
 
-    return ambient + diffuse + specular;
+    return (ambient + diffuse + specular) * attenuation;
 }
 
 void main()

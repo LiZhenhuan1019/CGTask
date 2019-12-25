@@ -6,8 +6,8 @@
 #include <sched.h>
 
 #include "glfw_window.hpp"
-#include "input/input_manager.hpp"
 #include "model/model_manager_task2.hpp"
+#include "input/input_manager_task2.hpp"
 #include "render/render_manager.hpp"
 #include "camera/free_camera.hpp"
 
@@ -17,10 +17,10 @@ int main()
     GLFWwindow *window = CGTask::make_window(width, height);
     try
     {
-        CGTask::camera::free_camera camera(glm::vec3(0, 300.0f, 0), glm::vec3(0, -1.0f, 0), width, height);
+        CGTask::camera::free_camera camera(glm::vec3(0, 300.0f, 100.0f), glm::vec3(0, -3.0f, -1.0f), width, height);
         CGTask::model::model_manager_task2 model(camera);
         CGTask::render::render_manager render(camera, model);
-        CGTask::input::input_manager input(window, render, camera);
+        CGTask::input::input_manager_task2 input(window, render, camera, model);
         CGTask::set_callback(window, camera, render, input);
         while (!glfwWindowShouldClose(window))
         {

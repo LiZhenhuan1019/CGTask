@@ -8,26 +8,36 @@ namespace CGTask::input
     class delta_timer
     {
     public:
-        delta_timer()
-        {
-            last_time = glfwGetTime();
-        }
         void update()
         {
-            current_time_ = glfwGetTime();
-            delta_time_ = current_time_ - std::exchange(last_time, current_time_);
+            if (!suspended)
+            {
+                double new_time = get_time(); 
+                delta_time_ = new_time - std::exchange(current_time_, new_time);
+            }
         }
-        double delta_time()
+        void toggle_suspend()
+        {
+            if (suspended)
+                suspend_amount = glfwGetTime() - current_time_;
+            suspended = !suspended;
+        }
+        double delta_time() const
         {
             return delta_time_;
         }
-        double current()
+        double current() const
         {
             return current_time_;
         }
     private:
-        double last_time;
-        double delta_time_;
-        double current_time_;
+        double get_time()
+        {
+            return glfwGetTime() - suspend_amount;
+        }
+        bool suspended = false;
+        double suspend_amount = 0;
+        double delta_time_ = 0;
+        double current_time_ = get_time();
     };
 }

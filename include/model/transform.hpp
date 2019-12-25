@@ -22,7 +22,7 @@ namespace CGTask::model
     {
     public:
         transform(glm::vec3 position = glm::vec3(0))
-            : rot(1), pos(position)
+            : pos(position), rot(1), scale_(1, 1, 1)
         {
             update();
         }
@@ -53,7 +53,7 @@ namespace CGTask::model
         }
         void rotate(float angle, glm::vec3 const &axis)
         {
-            rot = glm::rotate(rot, angle, glm::normalize(axis));
+            rot = glm::rotate(angle, glm::normalize(axis)) * rot;
             update();
         }
         glm::mat4 const &rotation() const
@@ -67,16 +67,19 @@ namespace CGTask::model
         }
         void scale(glm::vec3 const &vec)
         {
-            rot = glm::scale(rot, vec);
+            scale_.x *= vec.x;
+            scale_.y *= vec.y;
+            scale_.z *= vec.z;
             update();
         }
     private:
         void update()
         {
-            trans = glm::translate(pos) * rot;
+            trans = glm::translate(pos) * glm::scale(rot, scale_);
         }
         glm::mat4 trans;
-        glm::mat4 rot;
         glm::vec3 pos;
+        glm::mat4 rot;
+        glm::vec3 scale_;
     };
 }

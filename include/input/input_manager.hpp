@@ -13,81 +13,10 @@ namespace CGTask::input
     class input_manager
     {
     public:
-        input_manager(GLFWwindow *window, render::render_manager &render, camera::free_camera &camera)
-            :render(render), camera(camera)
-        {
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            if (glfwRawMouseMotionSupported())
-                glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-            glfwSetInputMode(window, GLFW_STICKY_KEYS, GLFW_TRUE);
-        }
-        void process_input(GLFWwindow *window)
-        {
-            timer.update();
-            
-            if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, true);
-
-            std::bitset<6> input;
-            bool accelerate = false;
-            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-                input.set(camera::input_enum::forward);
-            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-                input.set(camera::input_enum::backward);
-            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-                input.set(camera::input_enum::left);
-            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-                input.set(camera::input_enum::right);
-            if (glfwGetKey(window, GLFW_KEY_X) == GLFW_PRESS)
-                input.set(camera::input_enum::up);
-            if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-                input.set(camera::input_enum::down);
-            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-                accelerate = true;
-            float speed = accelerate ? 200 : 50;
-            if (input.any())
-                camera.move(input, timer.delta_time() * speed);
-        }
-        void input_callback(GLFWwindow * /*window*/, int key, int /*cancode*/, int action, int /*mods*/)
-        {
-            if (key == GLFW_KEY_P && action == GLFW_PRESS)
-            {
-                camera.toggle_projection();
-            }
-        }
-        void mouse_callback(GLFWwindow * /*window*/, double xpos, double ypos)
-        {
-            if (first_mouse)
-            {
-                first_mouse = false;
-                last_x = xpos;
-                last_y = ypos;
-            }
-            double x_offset = xpos - std::exchange(last_x, xpos);
-            double y_offset = -(ypos - std::exchange(last_y, ypos));
-            double sensitivity = 0.05f;
-            x_offset *= sensitivity;
-            y_offset *= sensitivity;
-            camera.turn(x_offset, y_offset);
-        }
-        void scroll_callback(GLFWwindow *, double /*xoffset*/, double yoffset)
-        {
-            yoffset /= 5;
-            double factor = 0;
-            if (yoffset >= 0)
-                factor = yoffset + 1;
-            else
-                factor = 1 / (-yoffset + 1);
-            scale = std::clamp(scale * factor, 0.0, 1000.0);
-            camera.orthographic_scale(scale);
-        }
-    private:
-        delta_timer timer;
-        [[maybe_unused]] render::render_manager &render;
-        camera::free_camera &camera;
-
-        bool first_mouse = true;
-        double last_x = 0, last_y = 0;
-        double scale = 1;
+        virtual ~input_manager() = default;
+        virtual void process_input(GLFWwindow *window) = 0;
+        virtual void input_callback(GLFWwindow * /*window*/, int key, int /*cancode*/, int action, int /*mods*/) = 0;
+        virtual void mouse_callback(GLFWwindow * /*window*/, double xpos, double ypos) = 0;
+        virtual void scroll_callback(GLFWwindow *, double /*xoffset*/, double yoffset) = 0;
     };
 }
