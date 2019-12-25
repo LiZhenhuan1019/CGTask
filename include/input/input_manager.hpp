@@ -29,6 +29,7 @@ namespace CGTask::input
                 glfwSetWindowShouldClose(window, true);
 
             std::bitset<6> input;
+            bool accelerate = false;
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
                 input.set(camera::input_enum::forward);
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -41,8 +42,11 @@ namespace CGTask::input
                 input.set(camera::input_enum::up);
             if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
                 input.set(camera::input_enum::down);
+            if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+                accelerate = true;
+            float speed = accelerate ? 200 : 50;
             if (input.any())
-                camera.move(input, timer.delta_time() * 100);
+                camera.move(input, timer.delta_time() * speed);
         }
         void input_callback(GLFWwindow * /*window*/, int key, int /*cancode*/, int action, int /*mods*/)
         {

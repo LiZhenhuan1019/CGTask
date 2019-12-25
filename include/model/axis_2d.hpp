@@ -28,6 +28,10 @@ namespace CGTask::model
             obj.vao.bind_vertex_array();
             glDrawElements(GL_LINES, 8, GL_UNSIGNED_INT, nullptr);
         }
+        render::shader_type shader_type() const
+        {
+            return render::shader_type::vertex_color_shader;
+        }
         
     private:
         std::size_t size;
@@ -55,11 +59,14 @@ namespace CGTask::model
             {
                 // position             color
                 (Float)size, 0, 0,  1.0f, 0.0f, 0.0f,
-                -(Float)size, 0, 0, 1.0f, 0.0f, 0.0f,
+                //-(Float)size, 0, 0, 1.0f, 0.0f, 0.0f,
+                0, 0, 0, 1.0f, 0.0f, 0.0f,
                 0, (Float)size, 0,  0.0f, 1.0f, 0.0f,
-                0, -(Float)size, 0, 0.0f, 1.0f, 0.0f,
+                //0, -(Float)size, 0, 0.0f, 1.0f, 0.0f,
+                0, 0, 0, 0.0f, 1.0f, 0.0f,
                 0, 0, (Float)size,  0.0f,  0.0f, 1.0f,
-                0, 0, -(Float)size, 0.0f,  0.0f, 1.0f
+                //0, 0, -(Float)size, 0.0f,  0.0f, 1.0f,
+                0, 0, 0,  0.0f,  0.0f, 1.0f,
             };
             glBindBuffer(GL_ARRAY_BUFFER, vbo);
             glBufferData(GL_ARRAY_BUFFER , sizeof(points), points, GL_STATIC_DRAW);

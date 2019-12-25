@@ -13,29 +13,29 @@
 
 namespace CGTask::render
 {
-    struct render_exception : public std::logic_error
+    struct shader_exception : public std::logic_error
     {
         using logic_error::logic_error;
     };
-    struct invalid_shader : public render_exception
+    struct invalid_shader : public shader_exception
     {
-        using render_exception::render_exception;
+        using shader_exception::shader_exception;
     };
-    struct compile_shader_failed : public render_exception
+    struct compile_shader_failed : public shader_exception
     {
-        using render_exception::render_exception;
+        using shader_exception::shader_exception;
     };
-    struct invalid_program : public render_exception
+    struct invalid_program : public shader_exception
     {
-        using render_exception::render_exception;
+        using shader_exception::shader_exception;
     };
-    struct link_program_failed : public render_exception
+    struct link_program_failed : public shader_exception
     {
-        using render_exception::render_exception;
+        using shader_exception::shader_exception;
     };
-    struct read_shader_file_failed : public render_exception
+    struct read_shader_file_failed : public shader_exception
     {
-        using render_exception::render_exception;
+        using shader_exception::shader_exception;
     };
 
     namespace detail
@@ -98,7 +98,7 @@ namespace CGTask::render
             return shader;
         }
     }
-    shader_handler make_shader(GLenum shader_type, std::string_view source)
+    inline shader_handler make_shader(GLenum shader_type, std::string_view source)
     {
         return shader_handler(detail::compile_shader(shader_type, source));
     }
@@ -127,6 +127,11 @@ namespace CGTask::render
         void set(NameOrLoc name_or_loc, float value) const
         {
             glUniform1f(get_location(name_or_loc), value);
+        }
+        template <typename NameOrLoc>
+        void set(NameOrLoc name_or_loc, glm::vec3 const &vec) const
+        {
+            glUniform3fv(get_location(name_or_loc), 1, glm::value_ptr(vec));
         }
         template <typename NameOrLoc>
         void set(NameOrLoc name_or_loc, glm::vec4 const &vec) const
@@ -208,6 +213,8 @@ namespace CGTask::render
     {
         uniform_color_shader,
         vertex_color_shader,
+        color_with_texture_shader,
+        texture_lighting_shader,
 
         shader_number
     };
@@ -218,11 +225,17 @@ namespace CGTask::render
         shader_handlers()
         {
             handlers.push_back(make_program(
-                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_nocolor.vert")),
-                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_uniform_color.frag"))));
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/uniform_color.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/uniform_color.frag"))));
             handlers.push_back(make_program(
-                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/2d_color.vert")),
-                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/2d_vertex_color.frag"))));
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/vertex_color.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/vertex_color.frag"))));
+            handlers.push_back(make_program(
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/color_with_texture.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/color_with_texture.frag"))));
+            handlers.push_back(make_program(
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/texture_lighting.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/texture_lighting.frag"))));
         }
         std::vector<shader_program_handler> handlers;
     };

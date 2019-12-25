@@ -46,8 +46,8 @@ namespace CGTask::model
     void set_vertex_attribute_pointer(GLuint index, GLint vertex_size, GLenum type,
             GLboolean normalized, GLsizei stride, void const *pointer)
     {
-        glVertexAttribPointer(index, vertex_size, type, normalized, stride, pointer);
         glEnableVertexAttribArray(index);
+        glVertexAttribPointer(index, vertex_size, type, normalized, stride, pointer);
     }
 
     inline auto vao_deleter = [](GLuint const&i)

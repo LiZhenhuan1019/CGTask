@@ -29,6 +29,8 @@ namespace CGTask::render
         {
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
@@ -37,7 +39,7 @@ namespace CGTask::render
         }
         void render()
         {
-            glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+            glClearColor(0.1f, 0.1f, 0.2f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             selector.foreach([this](shader_view const &shader)
                     {

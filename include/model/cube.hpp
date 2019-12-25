@@ -13,14 +13,19 @@ namespace CGTask::model
     public:
         cube(float length, float width, float height)
             : vao(make(length, width, height))
-        {
-        }
+        {}
         void draw(render::shader_view const &view) const
         {
             vao.bind_vertex_array();
             glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, nullptr);
         }
+        render::shader_type shader_type() const
+        {
+            return render::shader_type::vertex_color_shader;
+        }
     private:
+        vao_manager vao;
+
         vao_manager make(float length, float width, float height)
         {
             float points[] = 
@@ -51,6 +56,5 @@ namespace CGTask::model
             set_vertex_attribute_pointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)(3 * sizeof(float)));
             return vao;
         }
-        vao_manager vao;
     };
 }

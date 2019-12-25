@@ -28,6 +28,10 @@ namespace CGTask::camera
             update_view();
             update_projection();
         }
+        glm::vec3 pos() const
+        {
+            return position;
+        }
         glm::mat4 view() const
         {
             return view_matrix;

@@ -1,4 +1,5 @@
 #pragma once
+#include <glm/geometric.hpp>
 #include <glm/matrix.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/transform.hpp>
@@ -50,6 +51,11 @@ namespace CGTask::model
             pos += vec;
             update();
         }
+        void rotate(float angle, glm::vec3 const &axis)
+        {
+            rot = glm::rotate(rot, angle, glm::normalize(axis));
+            update();
+        }
         glm::mat4 const &rotation() const
         {
             return rot;
@@ -57,6 +63,11 @@ namespace CGTask::model
         void rotation(glm::mat4 const &mat)
         {
             rot = mat;
+            update();
+        }
+        void scale(glm::vec3 const &vec)
+        {
+            rot = glm::scale(rot, vec);
             update();
         }
     private:

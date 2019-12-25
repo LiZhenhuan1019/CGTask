@@ -80,6 +80,10 @@ namespace CGTask::model
             vao.bind_vertex_array();
             glDrawArrays(GL_POINTS, 0, size / 3);
         }
+        render::shader_type shader_type() const
+        {
+            return render::shader_type::uniform_color_shader;
+        }
     private:
         void insert_symmetry(std::vector<float> &vec, float x, float z)
         {

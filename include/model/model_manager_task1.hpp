@@ -18,9 +18,9 @@ namespace CGTask::model
     {
     public:
         model_manager_task1()
-            : axis_mesh(add(meshes, axis_2d<>(1000), render::shader_type::vertex_color_shader)), 
-              cube_mesh(add(meshes, cube(10, 10, 10), render::shader_type::vertex_color_shader)),
-              ellipse_mesh(add(meshes, ellipse_2d(120), render::shader_type::uniform_color_shader)),
+            : axis_mesh(add(meshes, axis_2d<>(1000))), 
+              cube_mesh(add(meshes, cube(10, 10, 10))),
+              ellipse_mesh(add(meshes, ellipse_2d(120))),
               axis_object(add(objects, object(axis_mesh))),
               cube_object(add(objects, object(cube_mesh))),
               ellipse_object(add(objects, object(ellipse_mesh)))
