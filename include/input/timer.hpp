@@ -7,6 +7,8 @@ namespace CGTask::input
 {
     class delta_timer
     {
+        // current_time_ = speed_ * glfwGetTime() + diff;
+        // y = s*x + d;
     public:
         void update()
         {
@@ -19,8 +21,13 @@ namespace CGTask::input
         void toggle_suspend()
         {
             if (suspended)
-                suspend_amount = glfwGetTime() - current_time_;
+                diff = current_time_ - speed_ * glfwGetTime();
             suspended = !suspended;
+        }
+        void speed(double new_speed)
+        {
+            speed_ = new_speed;
+            diff = current_time_ - speed_ * glfwGetTime();
         }
         double delta_time() const
         {
@@ -33,11 +40,12 @@ namespace CGTask::input
     private:
         double get_time()
         {
-            return glfwGetTime() - suspend_amount;
+            return speed_ * glfwGetTime() + diff;
         }
         bool suspended = false;
-        double suspend_amount = 0;
+        double diff = 0;
         double delta_time_ = 0;
+        double speed_ = 1;
         double current_time_ = get_time();
     };
 }

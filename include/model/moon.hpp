@@ -24,6 +24,7 @@ namespace CGTask::model
         }
         void draw(render::shader_view const &shader) const
         {
+            shader.set("light.specular", glm::vec4(0.5f, 0.5f, 0.5f, 1.0f));
             shader.set("material.ambient", 1.0f);
             shader.set("material.shininess", 1.0f);
             mesh.draw(shader);

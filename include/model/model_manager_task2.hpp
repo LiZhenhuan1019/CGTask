@@ -71,7 +71,7 @@ namespace CGTask::model
             {
                 drawable const& mesh = get_drawable(each.mesh());
                 render::shader_view shader = selector.select(mesh.shader_type());
-                if (mesh.shader_type() == render::shader_type::texture_lighting_shader)
+                if (shader.need_light())
                 {
                     main_light.set_shader(shader);
                     shader.set("view_position", glm::vec3(camera.pos()));
@@ -80,11 +80,10 @@ namespace CGTask::model
                 mesh.draw(shader);
             }
         }
-        void set_revolution_period(double period)
+        void set_speed(double new_speed)
         {
-            earth_revolution_period = period;
-            rotation_period = earth_revolution_period / 365.25;
-            moon_period = earth_revolution_period * 27.32 / 365.25;
+            speed = new_speed;
+            timer.speed(speed);
         }
         void toggle_suspend()
         {
@@ -93,14 +92,15 @@ namespace CGTask::model
     private:
         float moon_orbit_radius = 10;
         float earth_orbit_major_axis = 200;
+        // real eccentricity
         //float earth_orbit_eccentricity = 0.0167086;
         float earth_orbit_eccentricity = std::sqrt(7) / 4;
 
         float focus_x = earth_orbit_major_axis * earth_orbit_eccentricity;
 
-        double earth_revolution_period = 60;
+        double speed = 1; // 1 second corresponds to 1 day at speed 1
+        double earth_revolution_period = 365.25;
         double rotation_period = earth_revolution_period / 365.25;
-        //double rotation_period = earth_revolution_period / 50;
         double moon_period = earth_revolution_period * 27.32 / 365.25;
 
         math::elliptic_orbit orbit{earth_orbit_eccentricity, earth_orbit_major_axis};
@@ -139,7 +139,8 @@ namespace CGTask::model
         {
             int circle = t / earth_revolution_period;
             t -= circle * earth_revolution_period;
-            math::point p = orbit.position_on_elliptic_orbit(t, earth_revolution_period);
+            assert(t >= 0);
+            math::point p = orbit.position_on_elliptic_orbit(t, earth_revolution_period, speed * 0.001);
             glm::vec3 pos(p.x, p.y, 0);
             get_transform(earth_object).position(pos);
             get_transform(earth_clouds_object).position(pos);
@@ -147,7 +148,9 @@ namespace CGTask::model
         void update_earth_rotation(double time)
         {
             glm::mat4 rot = glm::rotate(glm::pi<float>() / 2, glm::vec3(1.0f, 0.0f, 0.0f));
-            rot = glm::rotate(float(time / rotation_period * 2 * glm::pi<float>()), glm::vec3(0, 0, 1)) * rot;
+            rot = glm::rotate(glm::radians(23.44f), glm::vec3(0, 1, 0)) * rot;
+            rot = glm::rotate(float(time / rotation_period * 2 * glm::pi<float>()),
+                    glm::normalize(glm::vec3(0.43356775861, 0, 1))) * rot; // tan(23.44) is about 0.43356775861
             get_transform(earth_object).rotation(rot);
             get_transform(earth_clouds_object).rotation(rot);
         } 

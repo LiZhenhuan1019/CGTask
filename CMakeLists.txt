@@ -15,12 +15,14 @@ configure_file("assets/shaders/color_with_texture.vert" "assets/shaders/color_wi
 configure_file("assets/shaders/color_with_texture.frag" "assets/shaders/color_with_texture.frag" COPYONLY)
 configure_file("assets/shaders/texture_lighting.vert" "assets/shaders/texture_lighting.vert" COPYONLY)
 configure_file("assets/shaders/texture_lighting.frag" "assets/shaders/texture_lighting.frag" COPYONLY)
+configure_file("assets/shaders/earth_shader.frag" "assets/shaders/earth_shader.frag" COPYONLY)
 
 
 configure_file("assets/texture/container.jpg" "assets/texture/container.jpg" COPYONLY)
 
 configure_file("assets/model/earth/Earth 2K.obj" "assets/model/earth/Earth 2K.obj" COPYONLY)
 configure_file("assets/model/earth/Textures/Diffuse_2K.png" "assets/model/earth/Textures/Diffuse_2K.png" COPYONLY)
+configure_file("assets/model/earth/Textures/Night_lights_2K.png" "assets/model/earth/Textures/Night_lights_2K.png" COPYONLY)
 configure_file("assets/model/earth/Textures/Clouds_2K.png" "assets/model/earth/Textures/Clouds_2K.png" COPYONLY)
 
 configure_file("assets/model/moon/Moon 2K.obj" "assets/model/moon/Moon 2K.obj" COPYONLY)

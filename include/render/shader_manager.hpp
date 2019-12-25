@@ -111,12 +111,16 @@ namespace CGTask::render
     class shader_view
     {
     public:
-        explicit shader_view(GLuint id)
-            : id_(id)
+        explicit shader_view(GLuint id, bool need_light)
+            : id_(id), need_light_(need_light)
         {}
         GLuint id() const
         {
             return id_;
+        }
+        bool need_light() const
+        {
+            return need_light_;
         }
         template <typename NameOrLoc>
         void set(NameOrLoc name_or_loc, int value) const
@@ -161,20 +165,28 @@ namespace CGTask::render
             return loc;
         }
         GLuint id_;
+        bool need_light_;
     };
     
     class shader_program_handler: public manager_base<GLuint>
     {
     public:
-        explicit shader_program_handler(GLuint program_id)
+        explicit shader_program_handler(GLuint program_id, bool need_light)
             : manager_base(!glIsProgram(program_id) ?
                     throw invalid_program("shader_program_handler::shader_program_handler: not a program") :
-                    program_id, shader_program_deleter)
+                    program_id, shader_program_deleter),
+              need_light_(need_light)
         {}
         shader_view view() const
         {
-            return shader_view(id());
+            return shader_view(id(), need_light());
         }
+        bool need_light() const
+        {
+            return need_light_;
+        }
+    private:
+        bool need_light_;
     };
     namespace detail
     {
@@ -190,7 +202,7 @@ namespace CGTask::render
         }
     }
     template <typename ...Shaders>
-    shader_program_handler make_program(Shaders const &...shaders)
+    shader_program_handler make_program(bool need_light, Shaders const &...shaders)
     {
         GLuint program_id = glCreateProgram();
         if (program_id == 0)
@@ -206,7 +218,7 @@ namespace CGTask::render
             glGetProgramInfoLog(program_id, 1024, nullptr, infolog);
             throw link_program_failed("ERROR::SHADER::LINK_PROGRAM_FAILED\nError info:\n"s + infolog);
         }
-        return shader_program_handler(program_id);
+        return shader_program_handler(program_id, need_light);
     }
 
     enum class shader_type
@@ -215,6 +227,7 @@ namespace CGTask::render
         vertex_color_shader,
         color_with_texture_shader,
         texture_lighting_shader,
+        earth_shader,
 
         shader_number
     };
@@ -224,18 +237,21 @@ namespace CGTask::render
     public:
         shader_handlers()
         {
-            handlers.push_back(make_program(
+            handlers.push_back(make_program(false,
                         make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/uniform_color.vert")),
                         make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/uniform_color.frag"))));
-            handlers.push_back(make_program(
+            handlers.push_back(make_program(false,
                         make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/vertex_color.vert")),
                         make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/vertex_color.frag"))));
-            handlers.push_back(make_program(
+            handlers.push_back(make_program(false,
                         make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/color_with_texture.vert")),
                         make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/color_with_texture.frag"))));
-            handlers.push_back(make_program(
+            handlers.push_back(make_program(true,
                         make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/texture_lighting.vert")),
                         make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/texture_lighting.frag"))));
+            handlers.push_back(make_program(true,
+                        make_shader(GL_VERTEX_SHADER, load_file("assets/shaders/texture_lighting.vert")),
+                        make_shader(GL_FRAGMENT_SHADER, load_file("assets/shaders/earth_shader.frag"))));
         }
         std::vector<shader_program_handler> handlers;
     };

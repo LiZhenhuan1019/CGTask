@@ -23,6 +23,26 @@ namespace CGTask::model
         void draw(render::shader_view const &shader) const
         {
             shader.set("material.ambient", 1.0f);
+            shader.set("material.night_ambient", 10.0f);
+            shader.set("material.shininess", 16.0f);
+            mesh.draw(shader);
+        }
+        render::shader_type shader_type() const
+        {
+            return render::shader_type::earth_shader;
+        }
+    private:
+        mesh_handler mesh;
+    };
+    class earth_clouds_mesh
+    {
+    public:
+        earth_clouds_mesh(mesh_handler mesh)
+            : mesh(std::move(mesh))
+        {}
+        void draw(render::shader_view const &shader) const
+        {
+            shader.set("material.ambient", 1.0f);
             shader.set("material.shininess", 32.0f);
             mesh.draw(shader);
         }
@@ -36,7 +56,7 @@ namespace CGTask::model
     struct earth_model
     {
         earth_mesh earth;
-        earth_mesh clouds;
+        earth_clouds_mesh clouds;
     };
     inline earth_model make_earth()
     {
@@ -54,11 +74,13 @@ namespace CGTask::model
                 clouds_index >= meshes.size())
             throw earth_model_not_match("earth mesh name not match");
         render::texture_handler texture_earth_diffuse = render::make_texture("assets/model/earth/Textures/Diffuse_2K.png", "diffuse");
+        render::texture_handler texture_earth_night_diffuse = render::make_texture("assets/model/earth/Textures/Night_lights_2K.png", "night_diffuse");
         render::texture_handler texture_clouds_diffuse = render::make_texture("assets/model/earth/Textures/Clouds_2K.png", "diffuse", true);
         meshes[earth_index].add_texture(std::move(texture_earth_diffuse));
+        meshes[earth_index].add_texture(std::move(texture_earth_night_diffuse));
         meshes[clouds_index].add_texture(std::move(texture_clouds_diffuse));
         earth_mesh earth(std::move(meshes[earth_index]));
-        earth_mesh clouds(std::move(meshes[clouds_index]));
+        earth_clouds_mesh clouds(std::move(meshes[clouds_index]));
         return {std::move(earth), std::move(clouds)};
     }
 }

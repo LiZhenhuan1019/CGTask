@@ -46,7 +46,7 @@ namespace CGTask::input
                 input.set(camera::input_enum::down);
             if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
                 accelerate = true;
-            float speed = accelerate ? 200 : 50;
+            float speed = accelerate ? 200 : 10;
             if (input.any())
                 camera.move(input, timer.delta_time() * speed);
         }
@@ -57,34 +57,44 @@ namespace CGTask::input
                 switch (key)
                 {
                 case GLFW_KEY_0:
-                    model.set_revolution_period(365 * 24 * 60 * 60);
+                    // 1:1 speed
+                    model.set_speed(1.0 / (24 * 60 * 60));
                     break;
                 case GLFW_KEY_1:
-                    model.set_revolution_period(365 * 24 * 60);
+                    // 1 second corresponds to 1 minute
+                    model.set_speed(1.0 / (24 * 60));
                     break;
                 case GLFW_KEY_2:
-                    model.set_revolution_period(365 * 24);
+                    // 1 second corresponds to 1 hour
+                    model.set_speed(1.0 / 24);
                     break;
                 case GLFW_KEY_3:
-                    model.set_revolution_period(365 * 4);
+                    // 1 second to 6 hours (1/4 day)
+                    model.set_speed(1.0 / 4);
                     break;
                 case GLFW_KEY_4:
-                    model.set_revolution_period(365);
+                    // 1 second to 1 day
+                    model.set_speed(1);
                     break;
                 case GLFW_KEY_5:
-                    model.set_revolution_period(49);
+                    // 1 second to 1 week
+                    model.set_speed(7);
                     break;
                 case GLFW_KEY_6:
-                    model.set_revolution_period(12);
+                    // 1 second to 30 days
+                    model.set_speed(30);
                     break;
                 case GLFW_KEY_7:
-                    model.set_revolution_period(4);
+                    // 1 second to 90 days
+                    model.set_speed(90);
                     break;
                 case GLFW_KEY_8:
-                    model.set_revolution_period(1);
+                    // 1 second to 1 year
+                    model.set_speed(365.25);
                     break;
                 case GLFW_KEY_9:
-                    model.set_revolution_period(0.5);
+                    // 1 second to 5 years
+                    model.set_speed(365.25 * 5);
                     break;
                 case GLFW_KEY_SPACE:
                     model.toggle_suspend();

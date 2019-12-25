@@ -1,6 +1,7 @@
 #include <cmath>
 #include <glm/ext/scalar_constants.hpp>
 #include <glm/glm.hpp>
+#include <iostream>
 
 namespace CGTask::math
 {
@@ -16,12 +17,14 @@ namespace CGTask::math
         elliptic_orbit(double e, double semi_major_axis)
             : e(e), a(semi_major_axis),
               b(std::sqrt((1 - e * e) * a * a))
-        {}
+        {
+            assert(e >= 0 && e <= 1);
+        }
         // y^2 = b^2 * (1 - x^2 / a^2);
-        point position_on_elliptic_orbit(double t, double period) const
+        point position_on_elliptic_orbit(double t, double period, double precision) const
         {
             double M = 2 * glm::pi<double>() * t / period;
-            double E = solve_equation(M);
+            double E = solve_equation(M, precision);
             double x_divide_a = std::cos(E);
             double y = b * std::sqrt(1 - x_divide_a * x_divide_a);
             if (t > period / 2)
@@ -35,11 +38,11 @@ namespace CGTask::math
         double b;
 
         // M = E - e * sin(E)
-        double solve_equation(double M) const
+        double solve_equation(double M, double precision) const
         {
-            return solve_equation(0.0001, M, 0, 7);
+            return solve_equation(M, 0, 7, precision);
         }
-        double solve_equation(double precision, double M, double E_left, double E_right) const
+        double solve_equation(double M, double E_left, double E_right, double precision) const
         {
             double M_left = equation_value(E_left);
             if (M == M_left)
