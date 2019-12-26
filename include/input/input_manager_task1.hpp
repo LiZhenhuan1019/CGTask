@@ -30,7 +30,6 @@ namespace CGTask::input
                 glfwSetWindowShouldClose(window, true);
 
             std::bitset<6> input;
-            bool accelerate = false;
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
                 input.set(camera::input_enum::forward);
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -44,8 +43,10 @@ namespace CGTask::input
             if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
                 input.set(camera::input_enum::down);
             if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+                accelerate = false;
+            else
                 accelerate = true;
-            float speed = accelerate ? 200 : 50;
+            float speed = accelerate ? 200 : 10;
             if (input.any())
                 camera.move(input, timer.delta_time() * speed);
         }
@@ -74,14 +75,21 @@ namespace CGTask::input
         }
         void scroll_callback(GLFWwindow *, double /*xoffset*/, double yoffset) override
         {
-            yoffset /= 5;
-            double factor = 0;
-            if (yoffset >= 0)
-                factor = yoffset + 1;
+            if (camera.is_orthographic())
+            {
+                yoffset /= 5;
+                double factor = 0;
+                if (yoffset >= 0)
+                    factor = yoffset + 1;
+                else
+                    factor = 1 / (-yoffset + 1);
+                scale = std::clamp(scale * factor, 0.0, 1000.0);
+                camera.orthographic_scale(scale);
+            }
             else
-                factor = 1 / (-yoffset + 1);
-            scale = std::clamp(scale * factor, 0.0, 1000.0);
-            camera.orthographic_scale(scale);
+            {
+                camera.go_up((accelerate ? 10 : 1) * yoffset);
+            }
         }
     private:
         delta_timer timer;
@@ -91,5 +99,6 @@ namespace CGTask::input
         bool first_mouse = true;
         double last_x = 0, last_y = 0;
         double scale = 1;
+        bool accelerate = true;
     };
 }

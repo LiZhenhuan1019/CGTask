@@ -19,10 +19,9 @@ int main()
     try
     {
         CGTask::camera::free_camera camera(glm::vec3(0, 300.0f, 100.0f), glm::vec3(0, -3.0f, -1.0f), width, height);
-        CGTask::input::delta_timer timer;
-        CGTask::model::model_manager_task2 model(camera, timer);
+        CGTask::model::model_manager_task2 model(camera);
         CGTask::render::render_manager render(camera, model);
-        CGTask::input::input_manager_task2 input(window, render, camera, model, timer);
+        CGTask::input::input_manager_task2 input(window, render, camera, model);
         CGTask::set_callback(window, camera, render, input);
         while (!glfwWindowShouldClose(window))
         {

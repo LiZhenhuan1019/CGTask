@@ -60,6 +60,16 @@ namespace CGTask::camera
             position += speed * right;
             update_view();
         }
+        void go_up(float speed)
+        {
+            position += speed * up;
+            update_view();
+        }
+        void go_down(float speed)
+        {
+            position -= speed * up;
+            update_view();
+        }
         void move(std::bitset<6> const &input, float speed)
         {
             move_impl(input, speed);
@@ -85,18 +95,22 @@ namespace CGTask::camera
         }
         void orthographic()
         {
-            is_orthographic = true;
+            is_orthographic_ = true;
             update_projection();
         }
         void perspective()
         {
-            is_orthographic = false;
+            is_orthographic_ = false;
             update_projection();
         }
         void toggle_projection()
         {
-            is_orthographic = !is_orthographic;
+            is_orthographic_ = !is_orthographic_;
             update_projection();
+        }
+        bool is_orthographic() const
+        {
+            return is_orthographic_;
         }
     private:
         void set_dir(glm::vec3 dir)
@@ -129,7 +143,7 @@ namespace CGTask::camera
 
         void update_projection()
         {
-            if (is_orthographic)
+            if (is_orthographic_)
                 projection_matrix = glm::ortho(
                         -(float)width / (2 * orthographic_scale_),
                         (float)width / (2 * orthographic_scale_),
@@ -169,7 +183,7 @@ namespace CGTask::camera
         glm::vec3 forward;
         std::size_t width, height;
         float orthographic_scale_ = 1;
-        bool is_orthographic = false;
+        bool is_orthographic_ = false;
         float pitch = 0, yaw = 0;
 
 

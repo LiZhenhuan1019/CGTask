@@ -13,8 +13,6 @@ namespace CGTask::input
     public:
         void update()
         {
-            if (wrap_time())
-                return;
             if (!suspended)
             {
                 double new_time = get_time(); 
@@ -26,11 +24,6 @@ namespace CGTask::input
             if (suspended)
                 update_diff();
             suspended = !suspended;
-        }
-        void speed(double new_speed)
-        {
-            speed_ = new_speed;
-            update_diff();
         }
         // to solve precision problem when speed is to large.
         void set_period(double p)
@@ -49,35 +42,16 @@ namespace CGTask::input
     private:
         double get_time()
         {
-            return speed_ * glfwGetTime() + diff;
+            return glfwGetTime() + diff;
         }
         void update_diff()
         {
-            if (wrap_time())
-                return;
-            diff = current_time_ - speed_ * glfwGetTime();
-        }
-        bool wrap_time()
-        {
-            double time = glfwGetTime();
-            if (period && speed_ * time > *period)
-            {
-                int circle = speed_ * time / *period;
-                double change = circle * *period;
-                double new_time = time - change / speed_;
-                glfwSetTime(new_time);
-                circle = current_time_ / *period;
-                current_time_ -= circle * *period;
-                diff = current_time_ - speed_ * new_time;
-                return true;
-            }
-            return false;
+            diff = current_time_ - glfwGetTime();
         }
         double delta_time_ = 0;
         double current_time_ = get_time();
         bool suspended = false;
         double diff = 0;
-        double speed_ = 1;
         std::optional<double> period;
     };
 }
