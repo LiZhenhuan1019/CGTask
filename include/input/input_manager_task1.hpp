@@ -47,7 +47,7 @@ namespace CGTask::input
                 accelerate = true;
             float speed = accelerate ? 200 : 50;
             if (input.any())
-                camera.move(input, timer.delta_time() * speed);
+                camera.move(input, (timer.delta_in_seconds()) * speed);
         }
         void input_callback(GLFWwindow * /*window*/, int key, int /*cancode*/, int action, int /*mods*/) override
         {

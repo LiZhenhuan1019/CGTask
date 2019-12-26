@@ -15,8 +15,8 @@ namespace CGTask::input
     class input_manager_task2 : public input_manager
     {
     public:
-        input_manager_task2(GLFWwindow *window, render::render_manager &render, camera::free_camera &camera, model::model_manager_task2 &model, input::delta_timer &timer)
-            :render(render), camera(camera), model(model), timer(timer)
+        input_manager_task2(GLFWwindow *window, render::render_manager &render, camera::free_camera &camera, model::model_manager_task2 &model)
+            :render(render), camera(camera), model(model)
         {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             if (glfwRawMouseMotionSupported())
@@ -48,7 +48,7 @@ namespace CGTask::input
                 accelerate = true;
             float speed = accelerate ? 200 : 10;
             if (input.any())
-                camera.move(input, timer.delta_time() * speed);
+                camera.move(input, timer.delta_in_seconds() * speed);
         }
         void input_callback(GLFWwindow * /*window*/, int key, int /*cancode*/, int action, int /*mods*/) override
         {
@@ -132,7 +132,7 @@ namespace CGTask::input
             camera.orthographic_scale(scale);
         }
     private:
-        delta_timer &timer;
+        delta_timer timer;
         [[maybe_unused]] render::render_manager &render;
         camera::free_camera &camera;
         model::model_manager_task2 &model;

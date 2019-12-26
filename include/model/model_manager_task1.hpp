@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <cmath>
@@ -29,7 +30,7 @@ namespace CGTask::model
         void update() override
         {
             timer.update();
-            double t = timer.current();
+            double t = timer.current_in_seconds();
             get_transform(cube_object).position(glm::vec3(120 * std::cos(t), 0, 90 * std::sin(t)));
         }
         void draw(render::shader_selector &selector) const override

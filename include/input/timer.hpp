@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 #include <utility>
 #include <optional>
+#include <chrono>
 
 namespace CGTask::input
 {
@@ -11,73 +12,94 @@ namespace CGTask::input
         // current_time_ = speed_ * glfwGetTime() + diff;
         // y = s*x + d;
     public:
+        using clock_t = std::chrono::high_resolution_clock;
+        using time_point_t = clock_t::time_point;
+        using duration_t = time_point_t::duration;
+        using seconds_t = std::chrono::duration<double, std::ratio<1>>;
         void update()
         {
-            if (wrap_time())
-                return;
+            update_raw_time();
             if (!suspended)
             {
-                double new_time = get_time(); 
+                //if (wrap_time())
+                 //   return;
+                duration_t new_time = get_time(); 
                 delta_time_ = new_time - std::exchange(current_time_, new_time);
             }
         }
         void toggle_suspend()
         {
             if (suspended)
-                update_diff();
+                update_begin_time();
             suspended = !suspended;
         }
         void speed(double new_speed)
         {
             speed_ = new_speed;
-            update_diff();
+            update_begin_time();
         }
         // to solve precision problem when speed is to large.
-        void set_period(double p)
+        template <typename Dur>
+        void set_period(Dur p)
         {
-            period = p;
+            period = std::chrono::duration_cast<duration_t>(p);
         }
-        double delta_time() const
+        duration_t delta() const
         {
             return delta_time_;
         }
-        double current() const
+        double delta_in_seconds() const
+        {
+            return delta_time_ / seconds_t(1);
+        }
+        duration_t current() const
         {
             return current_time_;
         }
-
-    private:
-        double get_time()
+        double current_in_seconds() const
         {
-            return speed_ * glfwGetTime() + diff;
+            return current_time_ / seconds_t(1);
         }
-        void update_diff()
+    private:
+        duration_t raw_get_time() const
         {
-            if (wrap_time())
-                return;
-            diff = current_time_ - speed_ * glfwGetTime();
+            return clock_t::now().time_since_epoch() - begin_time_;
+        }
+        void update_raw_time()
+        {
+            raw_time_ = raw_get_time();
+        }
+        duration_t get_time()
+        {
+            return std::chrono::duration_cast<duration_t>(speed_ * raw_time_);
+        }
+        void update_begin_time()
+        {
+            begin_time_ = raw_time_ - std::chrono::duration_cast<duration_t>(current_time_ / speed_);
+            wrap_time();
         }
         bool wrap_time()
         {
-            double time = glfwGetTime();
-            if (period && speed_ * time > *period)
+            if (period && current_time_.count() > 1000'00000000)
             {
-                int circle = speed_ * time / *period;
-                double change = circle * *period;
-                double new_time = time - change / speed_;
-                glfwSetTime(new_time);
-                circle = current_time_ / *period;
-                current_time_ -= circle * *period;
-                diff = current_time_ - speed_ * new_time;
+                long long circle = current_time_ / *period;
+                duration_t change_diff = std::chrono::duration_cast<duration_t>(circle * *period / speed_);
+                begin_time_ += change_diff;
+                update_raw_time();
+                current_time_ = get_time();
                 return true;
             }
             return false;
         }
-        double delta_time_ = 0;
-        double current_time_ = get_time();
-        bool suspended = false;
-        double diff = 0;
+        duration_t begin_time_ = clock_t::now().time_since_epoch();
+        duration_t raw_time_ = raw_get_time();
+        duration_t current_time_ = raw_time_;
+        duration_t diff = duration_t::zero();
+        duration_t delta_time_ = duration_t::zero();
         double speed_ = 1;
-        std::optional<double> period;
+
+        bool suspended = false;
+
+        std::optional<duration_t> period;
     };
 }
